@@ -9,7 +9,7 @@
 1. Component contracts can be reused without redeploying.
 2. System contracts can be reused without redeploying.
 3. World takes array of component and system contracts in constructor.
-4. Avoid `cast`ing, so that ABIs reflect the correct data type. At least for `components` and `systems`.
+4. Have ABIs reflect the correct data type. At least for `components` and `systems`.
 5. World contract is just orchestrating stuff, hold no data and no logic.
 6. World spawns entities and maybe has some logic for that.
 
