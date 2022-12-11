@@ -4,7 +4,8 @@
 // and their data for this component.
 
 %lang starknet
-
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.starknet.common.syscalls import get_contract_address
 // Start editing your component struct
 
 const COMPONENT_NAME = 'Location'; // Name for your component
@@ -24,7 +25,7 @@ func entity_data(
     contract_addr: felt,
     game_id: felt,
     entity_id: felt,
-) -> (data: Component_Struct) {
+) -> (res: (exists: felt, data: Component_Struct)) {
 }
 
 // For querying entities
@@ -50,4 +51,30 @@ func info() -> (name: felt, dataSize: felt) {
         COMPONENT_NAME,
         Component_Struct.SIZE
     );
+}
+
+// Adds the component for entity
+@external
+func add_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    game_id: felt, entity_id: felt, data: Component_Struct
+) {
+    let (contract_address) = get_contract_address();
+
+    // Get index settings
+    let (res) = entity_data.read( contract_address, game_id, entity_id );
+
+    with_attr error_message("Entity {entity_id} already exists in game {game_id}.") {
+        assert res[0] = 0;
+    }
+
+    // Get index and set entity ID to array
+    let (index) = entity_count.read( contract_address, game_id );
+    entity_arr.write( contract_address, game_id, index, entity_id );
+    // Update count
+    entity_count.write( contract_address, game_id, index + 1 );
+
+    // Add component data for entity
+    entity_data.write( contract_address, game_id, entity_id, (exists=1, data=data) );
+
+    return();
 }
