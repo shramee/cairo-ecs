@@ -6,7 +6,9 @@ from starkware.cairo.common.math import (assert_not_zero)
 from src.ecs.component import (
     Component_Struct,
     info,
-    add_entity, entity_count, entity_data, entity_arr
+    entity_count, entity_data, entity_arr,
+    add,
+    update,
 )
 
 @external
@@ -28,7 +30,7 @@ func test_info{syscall_ptr: felt*, range_check_ptr, pedersen_ptr: HashBuiltin*}(
 }
 
 @external
-func test_add_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+func test_add{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
     let (contract_address) = get_contract_address();
@@ -36,7 +38,7 @@ func test_add_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     let (count) = entity_count.read( contract_address, 'game0' );
     assert count = 0;
 
-    add_entity( 'game0', 'cube', Component_Struct(232, 412) );
+    add( 'game0', 'cube', Component_Struct(232, 412) );
 
     let (count) = entity_count.read( contract_address, 'game0' );
     assert count = 1;
@@ -49,10 +51,39 @@ func test_add_duplicate_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
     alloc_locals;
 
     let (contract_address) = get_contract_address();
-    add_entity( 'game0', 'cube', Component_Struct(40, 52) );
+    add( 'game0', 'cube', Component_Struct(40, 52) );
 
     %{ expect_revert(error_message="already exists") %}
-    add_entity( 'game0', 'cube', Component_Struct(23, 25) );
+    add( 'game0', 'cube', Component_Struct(23, 25) );
+
+    return();
+}
+
+
+@external
+func test_update{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+
+    let (contract_address) = get_contract_address();
+    add( 'game0', 'cube', Component_Struct(232, 412) );
+
+    let (res) = entity_data.read( contract_address, 'game0', 'cube' );
+    assert res[1].x = 232;
+
+    update( 'game0', 'cube', Component_Struct(23, 25) );
+
+    let (res) = entity_data.read( contract_address, 'game0', 'cube' );
+    assert res[1].x = 23;
+
+     return();
+}
+
+@external
+func test_update_inexisting_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+
+    %{ expect_revert(error_message="doesn't exists") %}
+    update( 'game0', 'inexistent_cube', Component_Struct(23, 25) );
 
     return();
 }

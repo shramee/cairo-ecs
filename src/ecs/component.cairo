@@ -55,7 +55,7 @@ func info() -> (name: felt, dataSize: felt) {
 
 // Adds the component for entity
 @external
-func add_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func add{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     game_id: felt, entity_id: felt, data: Component_Struct
 ) {
     let (contract_address) = get_contract_address();
@@ -78,3 +78,23 @@ func add_entity{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
 
     return();
 }
+
+// Adds the component for entity
+@external
+func update{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    game_id: felt, entity_id: felt, data: Component_Struct
+) {
+    let (contract_address) = get_contract_address();
+
+    // Get index settings
+    let (res) = entity_data.read( contract_address, game_id, entity_id );
+
+    with_attr error_message("Entity {entity_id} doesn't exists in game {game_id}.") {
+        assert res[0] = 1;
+    }
+
+    entity_data.write( contract_address, game_id, entity_id, (1, data) );
+
+    return();
+}
+
