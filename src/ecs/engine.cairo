@@ -22,7 +22,7 @@ func contracts_count( type: felt ) -> (count: felt) {
 
 // World internal metadata
 @storage_var
-func metadata() -> (name: felt, addr: felt) {
+func metadata( name: felt ) -> (addr: felt) {
 }
 
 
