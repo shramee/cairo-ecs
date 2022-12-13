@@ -1,4 +1,4 @@
-// This is a boilerplate for an ECS world manager contract
+// This is a boilerplate for an ECS engine contract
 // This contract includes contract addresses of components
 // and systems.
 // Setup systems are called when a new game is started,
@@ -8,6 +8,25 @@
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import (get_caller_address)
+
+// namespace TYPES {
+//     const OWNER = 0;
+//     const COMPONENT = 1;
+//     const SETUP_SYSTEM = 2;
+//     const SYSTEM = 3;
+//     const COMPONENTS = 1;
+//     const WORLD_ID_OFFSET = 100; // Types more than this will be worlds
+// }
+
+// // See TYPES namespace for info on type
+// @storage_var
+// func db( type: felt, index: felt ) -> (addr: felt) {
+// }
+
+// // Holds contracts count for looping
+// @storage_var
+// func db_count( type: felt ) -> (count: felt) {
+// }
 
 // Holds contract addresses in an array
 // type can be component, setup_system or system
@@ -96,4 +115,13 @@ func register_systems{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     save_arr_to_storage( 'systems', system_len, system);
     return ();
 }
-// }
+
+@external
+func setup_world{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (world_id: felt) {
+
+}
+
+@external
+func tick{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}( game_id: felt ) -> () {
+
+}
